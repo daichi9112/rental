@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>源泉所得税・振込額計算ツール</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      margin: 0;
+      background: linear-gradient(135deg, #eef2ff, #f8fafc);
+      color: #1f2937;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 32px 16px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 8px;
+      color: #1e3a8a;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #64748b;
+      margin-bottom: 28px;
+    }
+
+    .card {
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 18px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #334155;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    button {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .btn-main {
+      width: 100%;
+      margin-top: 20px;
+      background: #2563eb;
+      color: white;
+    }
+
+    .btn-save {
+      background: #16a34a;
+      color: white;
+    }
+
+    .btn-csv {
+      background: #0f766e;
+      color: white;
+    }
+
+    .btn-clear {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btn-delete {
+      background: #fee2e2;
+      color: #b91c1c;
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+
+    .result-box {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .result-item {
+      background: #f8fafc;
+      border-radius: 14px;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .result-label {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .result-value {
+      font-size: 22px;
+      font-weight: 800;
+      margin-top: 6px;
+    }
+
+    .highlight {
+      color: #2563eb;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+      font-size: 14px;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    th {
+      background: #1e3a8a;
+      color: white;
+      padding: 10px;
+    }
+
+    td {
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 10px;
+      text-align: right;
+    }
+
+    td:first-child, th:first-child {
+      text-align: left;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    @media (max-width: 700px) {
+      .grid,
+      .result-box {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <h1>源泉所得税・振込額計算ツール</h1>
+  <p class="subtitle">請求書の報酬・立替経費・消費税を分けて、振込額を自動計算します。</p>
+
+  <div class="card">
+    <div class="grid">
+      <div>
+        <label>取引先名</label>
+        <input type="text" id="clientName" placeholder="例：山田太郎">
+      </div>
+
+      <div>
+        <label>支払予定日</label>
+        <input type="date" id="paymentDate">
+      </div>
+
+      <div>
+        <label>源泉対象の報酬額（税抜）</label>
+        <input type="number" id="subjectAmount" placeholder="例：100000">
+      </div>
+
+      <div>
+        <label>源泉対象外の立替経費</label>
+        <input type="number" id="nonSubjectAmount" placeholder="例：15000">
+      </div>
+
+      <div>
+        <label>消費税額</label>
+        <input type="number" id="taxAmount" placeholder="例：10000">
+      </div>
+
+      <div>
+        <label>源泉徴収</label>
+        <select id="withholding">
+          <option value="yes">あり</option>
+          <option value="no">なし</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-main" onclick="calculate()">計算する</button>
+  </div>
+
+  <div class="card">
+    <div class="result-box">
+      <div class="result-item">
+        <div class="result-label">請求合計</div>
+        <div class="result-value"><span id="invoiceAmount">0</span> 円</div>
+      </div>
+
+      <div class="result-item">
+        <div class="result-label">源泉所得税等</div>
+        <div class="result-value"><span id="withholdingTax">0</span> 円</div>
+      </div>
+
+      <div class="result-item">
+        <div class="result-label">振込額</div>
+        <div class="result-value highlight"><span id="transferAmount">0</span> 円</div>
+      </div>
+
+      <div class="result-item">
+        <div class="result-label">源泉対象額</div>
+        <div class="result-value"><span id="targetAmount">0</span> 円</div>
+      </div>
+
+      <div class="result-item">
+        <div class="result-label">源泉対象外額</div>
+        <div class="result-value"><span id="nonTargetAmount">0</span> 円</div>
+      </div>
+
+      <div class="result-item">
+        <div class="result-label">消費税額</div>
+        <div class="result-value"><span id="displayTaxAmount">0</span> 円</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-save" onclick="saveData()">履歴に保存</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>保存履歴</h2>
+
+    <div class="actions">
+      <button class="btn-csv" onclick="downloadCSV()">CSV出力</button>
+      <button class="btn-clear" onclick="clearHistory()">履歴を全削除</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>取引先</th>
+            <th>源泉対象額</th>
+            <th>対象外額</th>
+            <th>消費税</th>
+            <th>請求合計</th>
+            <th>源泉税</th>
+            <th>振込額</th>
+            <th>支払予定日</th>
+            <th>削除</th>
+          </tr>
+        </thead>
+        <tbody id="historyTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let currentData = null;
+
+  function formatNumber(num) {
+    return Number(num).toLocaleString();
+  }
+
+  function calculate() {
+    const clientName = document.getElementById("clientName").value;
+    const subjectAmount = Number(document.getElementById("subjectAmount").value) || 0;
+    const nonSubjectAmount = Number(document.getElementById("nonSubjectAmount").value) || 0;
+    const taxAmount = Number(document.getElementById("taxAmount").value) || 0;
+    const withholding = document.getElementById("withholding").value;
+    const paymentDate = document.getElementById("paymentDate").value;
+
+    if (subjectAmount <= 0 && nonSubjectAmount <= 0) {
+      alert("源泉対象の報酬額、または源泉対象外の立替経費を入力してください。");
+      return;
+    }
+
+    const invoiceAmount = subjectAmount + nonSubjectAmount + taxAmount;
+
+    let withholdingTax = 0;
+
+    if (withholding === "yes") {
+      if (subjectAmount <= 1000000) {
+        withholdingTax = Math.floor(subjectAmount * 0.1021);
+      } else {
+        withholdingTax = Math.floor(
+          1000000 * 0.1021 + (subjectAmount - 1000000) * 0.2042
+        );
+      }
+    }
+
+    const transferAmount = invoiceAmount - withholdingTax;
+
+    document.getElementById("invoiceAmount").textContent = formatNumber(invoiceAmount);
+    document.getElementById("targetAmount").textContent = formatNumber(subjectAmount);
+    document.getElementById("nonTargetAmount").textContent = formatNumber(nonSubjectAmount);
+    document.getElementById("displayTaxAmount").textContent = formatNumber(taxAmount);
+    document.getElementById("withholdingTax").textContent = formatNumber(withholdingTax);
+    document.getElementById("transferAmount").textContent = formatNumber(transferAmount);
+
+    currentData = {
+      clientName,
+      subjectAmount,
+      nonSubjectAmount,
+      taxAmount,
+      invoiceAmount,
+      withholdingTax,
+      transferAmount,
+      paymentDate
+    };
+  }
+
+  function saveData() {
+    if (!currentData) {
+      alert("先に計算してください。");
+      return;
+    }
+
+    const history = JSON.parse(localStorage.getItem("invoiceHistory")) || [];
+    history.push(currentData);
+    localStorage.setItem("invoiceHistory", JSON.stringify(history));
+
+    renderHistory();
+    alert("保存しました。");
+  }
+
+  function renderHistory() {
+    const history = JSON.parse(localStorage.getItem("invoiceHistory")) || [];
+    const table = document.getElementById("historyTable");
+    table.innerHTML = "";
+
+    history.forEach((item, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${item.clientName || ""}</td>
+        <td>${formatNumber(item.subjectAmount)}</td>
+        <td>${formatNumber(item.nonSubjectAmount)}</td>
+        <td>${formatNumber(item.taxAmount)}</td>
+        <td>${formatNumber(item.invoiceAmount)}</td>
+        <td>${formatNumber(item.withholdingTax)}</td>
+        <td>${formatNumber(item.transferAmount)}</td>
+        <td>${item.paymentDate || ""}</td>
+        <td><button class="btn-delete" onclick="deleteHistory(${index})">削除</button></td>
+      `;
+      table.appendChild(row);
+    });
+  }
+
+  function deleteHistory(index) {
+    if (!confirm("この履歴を削除しますか？")) return;
+
+    const history = JSON.parse(localStorage.getItem("invoiceHistory")) || [];
+    history.splice(index, 1);
+    localStorage.setItem("invoiceHistory", JSON.stringify(history));
+
+    renderHistory();
+  }
+
+  function downloadCSV() {
+    const history = JSON.parse(localStorage.getItem("invoiceHistory")) || [];
+
+    if (history.length === 0) {
+      alert("出力する履歴がありません。");
+      return;
+    }
+
+    let csv = "取引先,源泉対象額,源泉対象外額,消費税,請求合計,源泉所得税等,振込額,支払予定日\n";
+
+    history.forEach(item => {
+      csv += `${item.clientName},${item.subjectAmount},${item.nonSubjectAmount},${item.taxAmount},${item.invoiceAmount},${item.withholdingTax},${item.transferAmount},${item.paymentDate}\n`;
+    });
+
+    const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+    const blob = new Blob([bom, csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "gensen_keisan.csv";
+    a.click();
+
+    URL.revokeObjectURL(url);
+  }
+
+  function clearHistory() {
+    if (confirm("履歴をすべて削除しますか？")) {
+      localStorage.removeItem("invoiceHistory");
+      renderHistory();
+    }
+  }
+
+  renderHistory();
+</script>
+
+</body>
+</html>
