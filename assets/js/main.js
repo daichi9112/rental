@@ -72,11 +72,49 @@ document.addEventListener("DOMContentLoaded", () => {
     saveSelection(selection); renderSelectedItems();
   });
 
-  document.getElementById("contact-form")?.addEventListener("submit", (event) => {
-    event.preventDefault(); const form = event.currentTarget; const status = document.getElementById("form-status");
-    if (!form.checkValidity()) { form.reportValidity(); if (status) status.textContent = "必須項目をご確認ください。"; return; }
-    if (status) { status.className = "form-status success"; status.textContent = "仮送信が完了しました。正式公開時に指定のメールアドレスへ届くよう設定します。"; }
-    status?.scrollIntoView({ behavior: "smooth", block: "center" });
+  document.getElementById("contact-form")?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const status = document.getElementById("form-status");
+    const submitButton = form.querySelector(".submit-button");
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      if (status) { status.className = "form-status error"; status.textContent = "必須項目をご確認ください。"; }
+      return;
+    }
+
+    const selection = getSelection();
+    const selectedIds = Object.keys(selection).filter((id) => PRODUCTS[id] && selection[id] > 0);
+    const equipmentSummary = selectedIds.length
+      ? selectedIds.map((id) => `${PRODUCTS[id].code} ${PRODUCTS[id].name} × ${selection[id]}`).join("\n")
+      : "選択なし（相談から希望）";
+    const estimatedTotal = selectedIds.reduce((sum, id) => sum + PRODUCTS[id].price * selection[id], 0);
+    document.getElementById("selected-equipment-field").value = equipmentSummary;
+    document.getElementById("estimated-total-field").value = yen(estimatedTotal);
+
+    if (status) { status.className = "form-status"; status.textContent = "送信しています…"; }
+    if (submitButton) { submitButton.disabled = true; submitButton.classList.add("submitting"); submitButton.innerHTML = "送信しています…"; }
+
+    try {
+      const formData = new FormData(form);
+      formData.append("送信ページ", window.location.href);
+      const response = await fetch(form.action, { method: "POST", body: formData, headers: { Accept: "application/json" } });
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        const message = Array.isArray(result.errors) ? result.errors.map((error) => error.message).join(" ") : "送信できませんでした。時間をおいて再度お試しください。";
+        throw new Error(message);
+      }
+      form.reset();
+      localStorage.removeItem(STORAGE_KEY);
+      updateSelectionUI();
+      renderSelectedItems();
+      if (status) { status.className = "form-status success"; status.textContent = "お問い合わせを送信しました。内容を確認のうえ、担当者よりご連絡します。"; }
+    } catch (error) {
+      if (status) { status.className = "form-status error"; status.textContent = error.message || "送信中に問題が発生しました。"; }
+    } finally {
+      if (submitButton) { submitButton.disabled = false; submitButton.classList.remove("submitting"); submitButton.innerHTML = `入力内容を送信する <span>→</span>`; }
+      status?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
   });
 
   const observer = new IntersectionObserver((entries) => entries.forEach((entry) => { if (entry.isIntersecting) entry.target.classList.add("shown"); }), { threshold: .12 });
