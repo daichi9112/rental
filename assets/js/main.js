@@ -4,7 +4,17 @@ const PRODUCTS = {
   mixer: { name: "デジタルミキサー 16ch", code: "AU-021", price: 12000 },
   microphone: { name: "ワイヤレスマイクセット", code: "AU-031", price: 6600 },
   parlight: { name: "LED PARライト", code: "LI-014", price: 3300 },
-  projector: { name: "レーザープロジェクター", code: "VI-008", price: 16500 }
+  projector: { name: "レーザープロジェクター", code: "VI-008", price: 16500 },
+  "vintage-trunk": { name: "ヴィンテージトランク", code: "PR-001", price: 0, priceLabel: "要見積もり" },
+  "patchwork-bench": { name: "パッチワークベンチ", code: "PR-002", price: 0, priceLabel: "要見積もり" },
+  "orb-light": { name: "球体LEDライト φ380", code: "PR-003", price: 0, priceLabel: "要見積もり" },
+  "tote-bag": { name: "ブラウン トートバッグ", code: "PR-004", price: 0, priceLabel: "要見積もり" },
+  "glasses-set": { name: "眼鏡・サングラスセット", code: "PR-005", price: 0, priceLabel: "要見積もり" },
+  "leather-attache": { name: "レザーアタッシュケース", code: "PR-006", price: 0, priceLabel: "要見積もり" },
+  "black-chair": { name: "木製椅子 ブラック", code: "PR-007", price: 0, priceLabel: "要見積もり" },
+  "flat-cap": { name: "ヘリンボーン ハンチング", code: "PR-008", price: 0, priceLabel: "要見積もり" },
+  "smartphones": { name: "撮影用スマートフォンセット", code: "PR-009", price: 0, priceLabel: "要見積もり" },
+  "prop-sword": { name: "舞台用模造刀", code: "PR-010", price: 0, priceLabel: "要見積もり" }
 };
 
 const STORAGE_KEY = "stagebase-selection";
@@ -38,11 +48,12 @@ function renderSelectedItems() {
   ids.forEach((id) => {
     const item = PRODUCTS[id];
     const row = document.createElement("div"); row.className = "selected-item";
-    row.innerHTML = `<div><small>${item.code}</small><strong>${item.name}</strong><span>${yen(item.price)} / 基本期間</span></div><div class="qty-control"><button type="button" data-action="minus" data-id="${id}" aria-label="${item.name}を1つ減らす">−</button><b>${selection[id]}</b><button type="button" data-action="plus" data-id="${id}" aria-label="${item.name}を1つ増やす">＋</button></div><button class="remove-item" type="button" data-action="remove" data-id="${id}" aria-label="${item.name}を削除">×</button>`;
+    row.innerHTML = `<div><small>${item.code}</small><strong>${item.name}</strong><span>${item.priceLabel || `${yen(item.price)} / 基本期間`}</span></div><div class="qty-control"><button type="button" data-action="minus" data-id="${id}" aria-label="${item.name}を1つ減らす">−</button><b>${selection[id]}</b><button type="button" data-action="plus" data-id="${id}" aria-label="${item.name}を1つ増やす">＋</button></div><button class="remove-item" type="button" data-action="remove" data-id="${id}" aria-label="${item.name}を削除">×</button>`;
     wrap.appendChild(row);
   });
   const total = ids.reduce((sum, id) => sum + PRODUCTS[id].price * selection[id], 0);
-  const totalEl = document.getElementById("estimate-total"); if (totalEl) totalEl.textContent = yen(total);
+  const includesQuote = ids.some((id) => PRODUCTS[id].priceLabel);
+  const totalEl = document.getElementById("estimate-total"); if (totalEl) totalEl.textContent = includesQuote ? "要見積もり" : yen(total);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -90,7 +101,10 @@ document.addEventListener("DOMContentLoaded", () => {
       : "選択なし（相談から希望）";
     const estimatedTotal = selectedIds.reduce((sum, id) => sum + PRODUCTS[id].price * selection[id], 0);
     document.getElementById("selected-equipment-field").value = equipmentSummary;
-    document.getElementById("estimated-total-field").value = yen(estimatedTotal);
+    const includesQuote = selectedIds.some((id) => PRODUCTS[id].priceLabel);
+    document.getElementById("estimated-total-field").value = includesQuote
+      ? `要見積もり（定額品参考合計 ${yen(estimatedTotal)}）`
+      : yen(estimatedTotal);
 
     if (status) { status.className = "form-status"; status.textContent = "送信しています…"; }
     if (submitButton) { submitButton.disabled = true; submitButton.classList.add("submitting"); submitButton.innerHTML = "送信しています…"; }
