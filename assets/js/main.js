@@ -14,7 +14,21 @@ const PRODUCTS = {
   "black-chair": { name: "木製椅子 ブラック", code: "PR-007", price: 0, priceLabel: "要見積もり" },
   "flat-cap": { name: "ヘリンボーン ハンチング", code: "PR-008", price: 0, priceLabel: "要見積もり" },
   "smartphones": { name: "撮影用スマートフォンセット", code: "PR-009", price: 0, priceLabel: "要見積もり" },
-  "prop-sword": { name: "舞台用模造刀", code: "PR-010", price: 0, priceLabel: "要見積もり" }
+  "prop-sword": { name: "舞台用模造刀", code: "PR-010", price: 0, priceLabel: "要見積もり" },
+  "deck-legs": { name: "デッキ足", code: "ST-002", price: 0, priceLabel: "要見積もり" },
+  "aluminum-truss": { name: "アルミトラス", code: "SS-001", price: 2500 },
+  "circle-truss": { name: "サークルトラス", code: "SS-002", price: 50000 },
+  "white-curtain-5": { name: "白幕 W5間×H28尺", code: "CU-001", price: 0, priceLabel: "要見積もり" },
+  "white-curtain-10": { name: "白幕 W10間×H26尺", code: "CU-002", price: 0, priceLabel: "要見積もり" },
+  "circle-screen": { name: "サークルトラス用スクリーン", code: "CU-003", price: 30000 },
+  scrim: { name: "紗幕", code: "CU-004", price: 0, priceLabel: "要見積もり" },
+  "scrim-valance": { name: "紗幕ふんどし", code: "CU-005", price: 0, priceLabel: "要見積もり" },
+  "black-gauze": { name: "寒冷紗 黒", code: "CU-006", price: 0, priceLabel: "要見積もり" },
+  "sky-drop": { name: "青空ドロップ", code: "CU-007", price: 0, priceLabel: "要見積もり" },
+  "bamboo-system": { name: "降り竹システム", code: "SS-003", price: 0, priceLabel: "要見積もり" },
+  "linoleum-gray-3": { name: "リノリウム グレー 3尺", code: "SS-004", price: 0, priceLabel: "要見積もり" },
+  "linoleum-black-3": { name: "リノリウム 黒 3尺", code: "SS-005", price: 0, priceLabel: "要見積もり" },
+  "linoleum-gray-1ken": { name: "リノリウム グレー 1間", code: "SS-006", price: 0, priceLabel: "要見積もり" }
 };
 
 const STORAGE_KEY = "stagebase-selection";
