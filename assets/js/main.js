@@ -13,7 +13,7 @@ const PRODUCTS = {
   "leather-attache": { name: "レザーアタッシュケース", code: "PR-006", price: 0, priceLabel: "要見積もり" },
   "black-chair": { name: "木製椅子 ブラック", code: "PR-007", price: 0, priceLabel: "要見積もり" },
   "flat-cap": { name: "ヘリンボーン ハンチング", code: "PR-008", price: 0, priceLabel: "要見積もり" },
-  "smartphones": { name: "撮影用スマートフォンセット", code: "PR-009", price: 0, priceLabel: "要見積もり" },
+  "smartphones": { name: "撮影用スマートフォンモックセット", code: "PR-009", price: 0, priceLabel: "要見積もり" },
   "prop-sword": { name: "舞台用模造刀", code: "PR-010", price: 0, priceLabel: "要見積もり" },
   "deck-legs": { name: "デッキ足", code: "ST-002", price: 0, priceLabel: "要見積もり" },
   "aluminum-truss": { name: "アルミトラス", code: "SS-001", price: 2500 },
