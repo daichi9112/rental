@@ -149,3 +149,120 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
   updateSelectionUI(); renderSelectedItems();
 });
+
+
+/* Catalog search, sorting, quantities and availability inquiry */
+const baseUpdateSelectionUI = updateSelectionUI;
+updateSelectionUI = function enhancedUpdateSelectionUI() {
+  baseUpdateSelectionUI();
+  const selection = getSelection();
+  document.querySelectorAll(".add-button[data-product]").forEach((button) => {
+    const qty = selection[button.dataset.product] || 0;
+    button.dataset.quantity = String(qty);
+    button.setAttribute("aria-label", qty
+      ? `${PRODUCTS[button.dataset.product]?.name || "機材"}をさらに1点追加（現在${qty}点）`
+      : `${PRODUCTS[button.dataset.product]?.name || "機材"}を1点追加`);
+    button.innerHTML = qty
+      ? `さらに追加 <span>＋</span><small>現在 ${qty}点</small>`
+      : `追加 <span>＋</span>`;
+  });
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+  const equipmentSection = document.querySelector(".equipment-section");
+  const productGrid = equipmentSection?.querySelector(".product-grid");
+  const filterRow = equipmentSection?.querySelector(".filter-row");
+  if (equipmentSection && productGrid && filterRow) {
+    const cards = [...productGrid.querySelectorAll(".product-card")];
+    cards.forEach((card, index) => { card.dataset.originalOrder = String(index); });
+
+    const availability = document.createElement("section");
+    availability.className = "availability-check";
+    availability.setAttribute("aria-labelledby", "availability-title");
+    availability.innerHTML = `<div><p class="eyebrow">AVAILABILITY</p><h3 id="availability-title">希望日から空き状況を問い合わせる</h3><p>日程を入力すると、お問い合わせ画面へ引き継がれます。担当者が在庫を確認してご連絡します。</p></div><div class="availability-fields"><label>利用開始日<input id="availability-start" type="date"></label><span>〜</span><label>利用終了日<input id="availability-end" type="date"></label><button type="button" id="availability-submit">この日程で確認する <b>→</b></button></div><p id="availability-message" class="availability-message" role="status" aria-live="polite"></p>`;
+    equipmentSection.insertBefore(availability, filterRow);
+
+    const toolsBar = document.createElement("div");
+    toolsBar.className = "catalog-tools";
+    toolsBar.innerHTML = `<label class="catalog-search"><span>商品を検索</span><input id="catalog-search" type="search" placeholder="商品名・商品番号で検索" autocomplete="off"></label><label class="catalog-sort"><span>並べ替え</span><select id="catalog-sort"><option value="recommended">おすすめ順</option><option value="code">商品番号順</option><option value="name">商品名順</option><option value="price">価格が安い順</option></select></label><p id="catalog-count" aria-live="polite"></p>`;
+    filterRow.insertAdjacentElement("afterend", toolsBar);
+    const empty = document.createElement("p");
+    empty.className = "catalog-empty";
+    empty.hidden = true;
+    empty.textContent = "条件に一致する機材がありません。検索語やカテゴリーを変更してください。";
+    productGrid.insertAdjacentElement("afterend", empty);
+
+    const normalize = (value) => value.normalize("NFKC").toLocaleLowerCase("ja");
+    const applyCatalog = () => {
+      const query = normalize(document.getElementById("catalog-search")?.value.trim() || "");
+      const activeCategory = filterRow.querySelector(".filter.active")?.dataset.filter || "all";
+      const sort = document.getElementById("catalog-sort")?.value || "recommended";
+      const visible = [];
+      cards.forEach((card) => {
+        const body = normalize(card.textContent || "");
+        const categoryMatch = activeCategory === "all" || card.dataset.category === activeCategory;
+        const queryMatch = !query || body.includes(query);
+        card.hidden = !(categoryMatch && queryMatch);
+        if (!card.hidden) visible.push(card);
+      });
+      const productMeta = (card) => {
+        const id = card.querySelector(".add-button")?.dataset.product;
+        const item = PRODUCTS[id] || {};
+        return {code:item.code || "", name:item.name || "", price:item.price || 0, quote:!!item.priceLabel, order:Number(card.dataset.originalOrder)};
+      };
+      const sorted = [...cards].sort((a,b) => {
+        const x=productMeta(a), y=productMeta(b);
+        if (sort === "code") return x.code.localeCompare(y.code,"ja",{numeric:true});
+        if (sort === "name") return x.name.localeCompare(y.name,"ja");
+        if (sort === "price") {
+          if (x.quote !== y.quote) return x.quote ? 1 : -1;
+          return x.price - y.price || x.order - y.order;
+        }
+        return x.order-y.order;
+      });
+      sorted.forEach(card => productGrid.appendChild(card));
+      const count = document.getElementById("catalog-count");
+      if (count) count.textContent = `${visible.length}件を表示`;
+      empty.hidden = visible.length !== 0;
+    };
+
+    document.getElementById("catalog-search")?.addEventListener("input", applyCatalog);
+    document.getElementById("catalog-sort")?.addEventListener("change", applyCatalog);
+    filterRow.querySelectorAll(".filter").forEach(button => button.addEventListener("click", applyCatalog));
+    applyCatalog();
+
+    const savedDates = JSON.parse(localStorage.getItem("stagebase-rental-dates") || "{}");
+    const start = document.getElementById("availability-start");
+    const end = document.getElementById("availability-end");
+    if (start && savedDates.start) start.value = savedDates.start;
+    if (end && savedDates.end) end.value = savedDates.end;
+    document.getElementById("availability-submit")?.addEventListener("click", () => {
+      const message = document.getElementById("availability-message");
+      if (!start?.value || !end?.value) {
+        message.textContent = "利用開始日と利用終了日を入力してください。";
+        message.className = "availability-message error";
+        return;
+      }
+      if (end.value < start.value) {
+        message.textContent = "利用終了日は、利用開始日以降の日付を選択してください。";
+        message.className = "availability-message error";
+        return;
+      }
+      localStorage.setItem("stagebase-rental-dates", JSON.stringify({start:start.value,end:end.value}));
+      window.location.href = "contact.html";
+    });
+  }
+
+  const rentalDates = JSON.parse(localStorage.getItem("stagebase-rental-dates") || "{}");
+  const contactStart = document.querySelector('input[name="start-date"]');
+  const contactEnd = document.querySelector('input[name="end-date"]');
+  if (contactStart && rentalDates.start && !contactStart.value) contactStart.value = rentalDates.start;
+  if (contactEnd && rentalDates.end && !contactEnd.value) contactEnd.value = rentalDates.end;
+  const saveContactDates = () => {
+    if (!contactStart && !contactEnd) return;
+    localStorage.setItem("stagebase-rental-dates", JSON.stringify({start:contactStart?.value || "",end:contactEnd?.value || ""}));
+  };
+  contactStart?.addEventListener("change", saveContactDates);
+  contactEnd?.addEventListener("change", saveContactDates);
+  updateSelectionUI();
+});
