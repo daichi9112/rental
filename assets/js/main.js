@@ -5,6 +5,16 @@ const PRODUCTS = {
   microphone: { name: "ワイヤレスマイクセット", code: "AU-031", price: 6600 },
   parlight: { name: "LED PARライト", code: "LI-014", price: 3300 },
   projector: { name: "レーザープロジェクター", code: "VI-008", price: 16500 },
+  "vintage-trunk": { name: "ヴィンテージトランク", code: "PR-001", price: 0, priceLabel: "要見積もり" },
+  "patchwork-bench": { name: "パッチワークベンチ", code: "PR-002", price: 0, priceLabel: "要見積もり" },
+  "orb-light": { name: "球体LEDライト φ380", code: "PR-003", price: 0, priceLabel: "要見積もり" },
+  "tote-bag": { name: "ブラウン トートバッグ", code: "PR-004", price: 0, priceLabel: "要見積もり" },
+  "glasses-set": { name: "眼鏡・サングラスセット", code: "PR-005", price: 0, priceLabel: "要見積もり" },
+  "leather-attache": { name: "レザーアタッシュケース", code: "PR-006", price: 0, priceLabel: "要見積もり" },
+  "black-chair": { name: "木製椅子 ブラック", code: "PR-007", price: 0, priceLabel: "要見積もり" },
+  "flat-cap": { name: "ヘリンボーン ハンチング", code: "PR-008", price: 0, priceLabel: "要見積もり" },
+  smartphones: { name: "スマートフォンモックセット", code: "PR-009", price: 0, priceLabel: "要見積もり" },
+  "prop-sword": { name: "舞台用模造刀", code: "PR-010", price: 0, priceLabel: "要見積もり" },
   "deck-legs": { name: "デッキ足", code: "ST-002", price: 0, priceLabel: "要見積もり" },
   "aluminum-truss": { name: "アルミトラス 300角", code: "SS-001", price: 2500 },
   "circle-truss": { name: "サークルトラス 300角", code: "SS-002", price: 50000 },
@@ -170,31 +180,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const availability = document.createElement("section");
     availability.className = "availability-check";
-    availability.innerHTML = `<div><p class="eyebrow">AVAILABILITY</p><h3>希望日から空き状況を問い合わせる</h3><p>日程はお問い合わせ画面へ引き継がれ、担当者が在庫を確認します。</p></div><div class="availability-fields"><label>公演開始日<input id="availability-start" type="date"></label><span>〜</span><label>公演終了日<input id="availability-end" type="date"></label><button type="button" id="availability-submit">この日程で確認する <b>→</b></button></div><p id="availability-message" class="availability-message" role="status"></p>`;
+    availability.setAttribute("aria-labelledby", "availability-title");
+    availability.innerHTML = `<div><p class="eyebrow">AVAILABILITY</p><h3 id="availability-title">希望日から空き状況を問い合わせる</h3><p>日程はお問い合わせ画面へ引き継がれ、担当者が在庫を確認します。</p></div><div class="availability-fields"><label>公演開始日<input id="availability-start" type="date"></label><span>〜</span><label>公演終了日<input id="availability-end" type="date"></label><button type="button" id="availability-submit">この日程で確認する <b>→</b></button></div><p id="availability-message" class="availability-message" role="status" aria-live="polite"></p>`;
     equipmentSection.insertBefore(availability, filterRow);
 
     const toolsBar = document.createElement("div");
     toolsBar.className = "catalog-tools";
-    toolsBar.innerHTML = `<label><span>商品を検索</span><input id="catalog-search" type="search" placeholder="商品名・商品番号で検索"></label><label><span>並べ替え</span><select id="catalog-sort"><option value="recommended">おすすめ順</option><option value="code">商品番号順</option><option value="name">商品名順</option></select></label><p id="catalog-count" aria-live="polite"></p>`;
+    toolsBar.innerHTML = `<label class="catalog-search"><span>商品を検索</span><input id="catalog-search" type="search" placeholder="商品名・商品番号で検索" autocomplete="off"></label><label class="catalog-sort"><span>並べ替え</span><select id="catalog-sort"><option value="recommended">おすすめ順</option><option value="code">商品番号順</option><option value="name">商品名順</option><option value="price">価格が安い順</option></select></label><p id="catalog-count" aria-live="polite"></p>`;
     filterRow.insertAdjacentElement("afterend", toolsBar);
+    const empty = document.createElement("p");
+    empty.className = "catalog-empty";
+    empty.hidden = true;
+    empty.textContent = "条件に一致する機材がありません。検索語やカテゴリーを変更してください。";
+    productGrid.insertAdjacentElement("afterend", empty);
 
     const applyCatalog = () => {
       const query = (document.getElementById("catalog-search")?.value || "").normalize("NFKC").toLocaleLowerCase("ja").trim();
       const category = filterRow.querySelector(".filter.active")?.dataset.filter || "all";
       const sort = document.getElementById("catalog-sort")?.value || "recommended";
-      let visible = 0;
+      const visible = [];
       cards.forEach((card) => {
         const match = (category === "all" || card.dataset.category === category) && (!query || card.textContent.normalize("NFKC").toLocaleLowerCase("ja").includes(query));
         card.hidden = !match;
-        if (match) visible += 1;
+        if (match) visible.push(card);
       });
       const ordered = [...cards].sort((a, b) => {
         if (sort === "code") return (a.querySelector(".product-code")?.textContent || "").localeCompare(b.querySelector(".product-code")?.textContent || "", "ja", { numeric: true });
         if (sort === "name") return (a.querySelector("h3")?.textContent || "").localeCompare(b.querySelector("h3")?.textContent || "", "ja");
+        if (sort === "price") {
+          const x = PRODUCTS[a.querySelector(".add-button")?.dataset.product] || {};
+          const y = PRODUCTS[b.querySelector(".add-button")?.dataset.product] || {};
+          if (Boolean(x.priceLabel) !== Boolean(y.priceLabel)) return x.priceLabel ? 1 : -1;
+          return (x.price || 0) - (y.price || 0) || Number(a.dataset.originalOrder) - Number(b.dataset.originalOrder);
+        }
         return Number(a.dataset.originalOrder) - Number(b.dataset.originalOrder);
       });
       ordered.forEach((card) => productGrid.appendChild(card));
-      document.getElementById("catalog-count").textContent = `${visible}件を表示`;
+      document.getElementById("catalog-count").textContent = `${visible.length}件を表示`;
+      empty.hidden = visible.length !== 0;
     };
     document.getElementById("catalog-search")?.addEventListener("input", applyCatalog);
     document.getElementById("catalog-sort")?.addEventListener("change", applyCatalog);
@@ -207,8 +230,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (savedDates.end) availabilityEnd.value = savedDates.end;
     document.getElementById("availability-submit")?.addEventListener("click", () => {
       const message = document.getElementById("availability-message");
-      if (!availabilityStart.value || !availabilityEnd.value || availabilityEnd.value < availabilityStart.value) {
-        message.textContent = "開始日と終了日を正しい順序で入力してください。";
+      if (!availabilityStart.value || !availabilityEnd.value) {
+        message.textContent = "開始日と終了日を入力してください。";
+        message.className = "availability-message error";
+        return;
+      }
+      if (availabilityEnd.value < availabilityStart.value) {
+        message.textContent = "終了日は開始日以降の日付を選択してください。";
         message.className = "availability-message error";
         return;
       }
