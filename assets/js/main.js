@@ -17,7 +17,8 @@ const PRODUCTS = {
   "sky-drop": { name: "青空ドロップ", code: "CU-007", price: 0, priceLabel: "要見積もり" },
   "bamboo-system": { name: "降り竹システム", code: "SS-003", price: 0, priceLabel: "要見積もり" },
   "linoleum-gray-3": { name: "リノリウム グレー 3尺", code: "SS-004", price: 0, priceLabel: "要見積もり" },
-  "linoleum-black-3": { name: "リノリウム 黒 3尺", code: "SS-005", price: 0, priceLabel: "要見積もり" }
+  "linoleum-black-3": { name: "リノリウム 黒 3尺", code: "SS-005", price: 0, priceLabel: "要見積もり" },
+  "linoleum-gray-1ken": { name: "リノリウム1間グレー", code: "SS-006", price: 0, priceLabel: "要見積もり" }
 };
 
 const STORAGE_KEY = "stagebase-selection";
