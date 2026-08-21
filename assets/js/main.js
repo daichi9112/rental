@@ -208,7 +208,9 @@ document.addEventListener("DOMContentLoaded", () => {
           if (Boolean(x.priceLabel) !== Boolean(y.priceLabel)) return x.priceLabel ? 1 : -1;
           return (x.price || 0) - (y.price || 0) || Number(a.dataset.originalOrder) - Number(b.dataset.originalOrder);
         }
-        return Number(a.dataset.originalOrder) - Number(b.dataset.originalOrder);
+        const categoryOrder = { stage: 0, "stage-supplies": 1, curtains: 2, props: 3 };
+        return (categoryOrder[a.dataset.category] ?? 99) - (categoryOrder[b.dataset.category] ?? 99)
+          || Number(a.dataset.originalOrder) - Number(b.dataset.originalOrder);
       });
       ordered.forEach((card) => productGrid.appendChild(card));
       document.getElementById("catalog-count").textContent = `${visible.length}件を表示`;
