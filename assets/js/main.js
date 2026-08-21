@@ -1,10 +1,5 @@
 const PRODUCTS = {
   deck: { name: "スチールデッキ セットプラン", code: "ST-001", price: 0, priceLabel: "要相談" },
-  speaker: { name: "パワードスピーカー 12inch", code: "AU-012", price: 8800 },
-  mixer: { name: "デジタルミキサー 16ch", code: "AU-021", price: 12000 },
-  microphone: { name: "ワイヤレスマイクセット", code: "AU-031", price: 6600 },
-  parlight: { name: "LED PARライト", code: "LI-014", price: 3300 },
-  projector: { name: "レーザープロジェクター", code: "VI-008", price: 16500 },
   "vintage-trunk": { name: "ヴィンテージトランク", code: "PR-001", price: 0, priceLabel: "要見積もり" },
   "patchwork-bench": { name: "パッチワークベンチ", code: "PR-002", price: 0, priceLabel: "要見積もり" },
   "orb-light": { name: "球体LEDライト φ380", code: "PR-003", price: 0, priceLabel: "要見積もり" },
