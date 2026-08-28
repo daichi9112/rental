@@ -1,29 +1,27 @@
 const PRODUCTS = {
-  deck: { name: "スチールデッキ セットプラン", code: "ST-001", price: 0, priceLabel: "要相談" },
-  "vintage-trunk": { name: "ヴィンテージトランク", code: "PR-001", price: 0, priceLabel: "要見積もり" },
-  "patchwork-bench": { name: "パッチワークベンチ", code: "PR-002", price: 0, priceLabel: "要見積もり" },
-  "orb-light": { name: "球体LEDライト φ380", code: "PR-003", price: 0, priceLabel: "要見積もり" },
-  "tote-bag": { name: "ブラウン トートバッグ", code: "PR-004", price: 0, priceLabel: "要見積もり" },
-  "glasses-set": { name: "眼鏡・サングラスセット", code: "PR-005", price: 0, priceLabel: "要見積もり" },
-  "leather-attache": { name: "レザーアタッシュケース", code: "PR-006", price: 0, priceLabel: "要見積もり" },
-  "black-chair": { name: "木製椅子 ブラック", code: "PR-007", price: 0, priceLabel: "要見積もり" },
-  "flat-cap": { name: "ヘリンボーン ハンチング", code: "PR-008", price: 0, priceLabel: "要見積もり" },
-  smartphones: { name: "スマートフォンモックセット", code: "PR-009", price: 0, priceLabel: "要見積もり" },
-  "prop-sword": { name: "舞台用模造刀", code: "PR-010", price: 0, priceLabel: "要見積もり" },
-  "deck-legs": { name: "デッキ足", code: "ST-002", price: 0, priceLabel: "要見積もり" },
-  "aluminum-truss": { name: "アルミトラス 300角", code: "SS-001", price: 2500 },
-  "circle-truss": { name: "サークルトラス 300角", code: "SS-002", price: 50000 },
-  "white-curtain-5": { name: "白幕 W5間×H28尺", code: "CU-001", price: 0, priceLabel: "要見積もり" },
-  "white-curtain-10": { name: "白幕 W10間×H26尺", code: "CU-002", price: 0, priceLabel: "要見積もり" },
-  "circle-screen": { name: "サークルトラス用スクリーン", code: "CU-003", price: 30000 },
-  scrim: { name: "紗幕", code: "CU-004", price: 0, priceLabel: "要見積もり" },
-  "black-gauze": { name: "寒冷紗 黒", code: "CU-006", price: 0, priceLabel: "要見積もり" },
-  "sky-drop": { name: "青空ドロップ", code: "CU-007", price: 0, priceLabel: "要見積もり" },
-  "bamboo-system": { name: "降り竹システム", code: "SS-003", price: 0, priceLabel: "要見積もり" },
-  "linoleum-gray-3": { name: "リノリウム グレー 3尺", code: "SS-004", price: 0, priceLabel: "要見積もり" },
-  "linoleum-black-3": { name: "リノリウム 黒 3尺", code: "SS-005", price: 0, priceLabel: "要見積もり" },
-  "linoleum-gray-1ken": { name: "リノリウム1間グレー", code: "SS-006", price: 0, priceLabel: "要見積もり" },
-  "antari-z1020": { name: "ANTARI Z1020 フォグマシン", code: "SS-007", price: 0, priceLabel: "要見積もり" }
+  deck: { name: "スチールデッキ セットプラン", code: "ST-001", price: 0, priceLabel: "要相談・見積" },
+  "vintage-trunk": { name: "ヴィンテージトランク", code: "PR-001", price: 0, priceLabel: "要相談・見積" },
+  "patchwork-bench": { name: "パッチワークベンチ", code: "PR-002", price: 0, priceLabel: "要相談・見積" },
+  "orb-light": { name: "球体LEDライト φ380", code: "PR-003", price: 0, priceLabel: "要相談・見積" },
+  "tote-bag": { name: "ブラウン トートバッグ", code: "PR-004", price: 0, priceLabel: "要相談・見積" },
+  "glasses-set": { name: "眼鏡・サングラスセット", code: "PR-005", price: 0, priceLabel: "要相談・見積" },
+  "leather-attache": { name: "レザーアタッシュケース", code: "PR-006", price: 0, priceLabel: "要相談・見積" },
+  "black-chair": { name: "木製椅子 ブラック", code: "PR-007", price: 0, priceLabel: "要相談・見積" },
+  "flat-cap": { name: "ヘリンボーン ハンチング", code: "PR-008", price: 0, priceLabel: "要相談・見積" },
+  smartphones: { name: "スマートフォンモックセット", code: "PR-009", price: 0, priceLabel: "要相談・見積" },
+  "prop-sword": { name: "舞台用模造刀", code: "PR-010", price: 0, priceLabel: "要相談・見積" },
+  "aluminum-truss": { name: "アルミトラス 300角", code: "SS-001", price: 0, priceLabel: "要相談・見積" },
+  "circle-truss": { name: "サークルトラス 300角", code: "SS-002", price: 0, priceLabel: "要相談・見積" },
+  "white-curtain-5": { name: "白幕 W5間×H28尺", code: "CU-001", price: 0, priceLabel: "要相談・見積" },
+  "white-curtain-10": { name: "白幕 W10間×H26尺", code: "CU-002", price: 0, priceLabel: "要相談・見積" },
+  "circle-screen": { name: "サークルトラス用スクリーン", code: "CU-003", price: 0, priceLabel: "要相談・見積" },
+  scrim: { name: "紗幕", code: "CU-004", price: 0, priceLabel: "要相談・見積" },
+  "black-gauze": { name: "寒冷紗 黒", code: "CU-006", price: 0, priceLabel: "要相談・見積" },
+  "sky-drop": { name: "青空ドロップ", code: "CU-007", price: 0, priceLabel: "要相談・見積" },
+  "linoleum-gray-3": { name: "リノリウム グレー 3尺", code: "SS-004", price: 0, priceLabel: "要相談・見積" },
+  "linoleum-black-3": { name: "リノリウム 黒 3尺", code: "SS-005", price: 0, priceLabel: "要相談・見積" },
+  "linoleum-gray-1ken": { name: "リノリウム1間グレー", code: "SS-006", price: 0, priceLabel: "要相談・見積" },
+  "antari-z1020": { name: "ANTARI Z1020 フォグマシン", code: "SS-007", price: 0, priceLabel: "要相談・見積" }
 };
 
 const STORAGE_KEY = "stagebase-selection";
@@ -63,7 +61,7 @@ function renderSelectedItems() {
   });
   const total = ids.reduce((sum, id) => sum + PRODUCTS[id].price * selection[id], 0);
   const includesQuote = ids.some((id) => PRODUCTS[id].priceLabel);
-  const totalEl = document.getElementById("estimate-total"); if (totalEl) totalEl.textContent = includesQuote ? "要見積もり" : yen(total);
+  const totalEl = document.getElementById("estimate-total"); if (totalEl) totalEl.textContent = "要相談・見積";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -124,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const estimatedTotal = selectedIds.reduce((sum, id) => sum + PRODUCTS[id].price * selection[id], 0);
     document.getElementById("selected-equipment-field").value = equipmentSummary;
     const includesQuote = selectedIds.some((id) => PRODUCTS[id].priceLabel);
-    document.getElementById("estimated-total-field").value = includesQuote ? `要見積もり（定額品参考合計 ${yen(estimatedTotal)}）` : yen(estimatedTotal);
+    document.getElementById("estimated-total-field").value = "要相談・見積";
 
     if (status) { status.className = "form-status"; status.textContent = "送信しています…"; }
     if (submitButton) { submitButton.disabled = true; submitButton.classList.add("submitting"); submitButton.innerHTML = "送信しています…"; }
@@ -246,3 +244,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
   updateSelectionUI(); renderSelectedItems();
 });
+
+
+
