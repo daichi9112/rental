@@ -136,6 +136,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const message = Array.isArray(result.errors) ? result.errors.map((error) => error.message).join(" ") : "送信できませんでした。時間をおいて再度お試しください。";
         throw new Error(message);
       }
+      if (typeof gtag === "function") {
+        gtag('event', 'generate_lead');
+      }
       form.reset();
       localStorage.removeItem(STORAGE_KEY);
       updateSelectionUI();
